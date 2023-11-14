@@ -31,6 +31,10 @@
             </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="mb-3 row">
+        <div class="offset-md-4 col-md-6">
+            <button type="submit" class="btn btn-primary float-md-start">Submit</button>
+        </div>
+    </div>
 </form>
 @endsection
