@@ -3,7 +3,7 @@
 <div class="row justify-content-center mt-5">
     <div class="col-md-8">
         <div class="card">
-            <div class="card-header">Movie</div>
+            <div class="card-header">Add New Image</div>
             <div class="card-body">
                 <div class="row">
                     @if(count($galleries)>0)
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="text-end">
-            <a href="{{ route('gallery.create')}}" class="btn btn-outline-primary mt-2 ">Add Film</a>
+            <a href="{{ route('gallery.create')}}" class="btn btn-outline-primary mt-2 ">Add Image</a>
         </div>
     </div>
 </div>

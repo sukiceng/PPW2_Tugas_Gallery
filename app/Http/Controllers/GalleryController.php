@@ -64,8 +64,8 @@ class GalleryController extends Controller
      */
     public function edit(string $id)
     {
-        $movie = Post::findOrFail($id);
-        return view('gallery.edit', compact('movie'));
+        $image = Post::findOrFail($id);
+        return view('gallery.edit', compact('image'));
     }
 
     /**
@@ -73,7 +73,7 @@ class GalleryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $movie = Post::findOrFail($id);
+        $image = Post::findOrFail($id);
         $request->validate([
             'title' => 'required|max:255',
             'description' => 'required',
@@ -84,7 +84,7 @@ class GalleryController extends Controller
             'description' => $request->description,
         ];
         if ($request->hasFile('picture')) {
-            File::delete(public_path() . '/storage/posts_image/' . $movie->picture);
+            File::delete(public_path() . '/storage/posts_image/' . $image->picture);
 
             $filenameWithExt = $request->file('picture')->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
@@ -96,7 +96,7 @@ class GalleryController extends Controller
         } else {
         }
 
-        $movie->update($userData);
+        $image->update($userData);
 
         return redirect('gallery')->with('success', 'Data successfully modified.');
     }

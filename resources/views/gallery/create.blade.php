@@ -24,13 +24,17 @@
         <label for="input-file" class="col-md-4 col-form-label text-md-end text-start">File input</label>
         <div class="col-md-6">
             <div class="input-group">
-                <div class="custom-file">
+                <div class="custom-file" style="margin-bottom: 10px;"> <!-- Adjust the margin as needed -->
                     <input type="file" class="custom-file-input" id="input-file" name="picture">
                     <label class="custom-file-label" for="input-file">Choose file</label>
                 </div>
             </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="mb-3 row">
+        <div class="offset-md-4 col-md-6">
+            <button type="submit" class="btn btn-primary float-md-end">Submit</button>
+        </div>
+    </div>
 </form>
 @endsection
