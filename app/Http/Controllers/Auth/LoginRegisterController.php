@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Image;
 use App\Models\User;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Jobs\SendMailJob;
+use Illuminate\View\View;
+use App\Mail\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-use Intervention\Image\ImageManagerStatic as Image;
+use App\Http\Requests\UpdateUsersRequest;
 
 
 class LoginRegisterController extends Controller
@@ -31,28 +36,55 @@ class LoginRegisterController extends Controller
             'photo' => 'image|nullable|max:1999'
         ]);
 
-        if($request->hasFile('photo')){
+        // if($request->hasFile('photo')){
+        //     $filenameWithExt = $request->file('photo')->getClientOriginalName();
+        //     $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+        //     $extension = $request->file('photo')->getClientOriginalExtension();
+        //     $filenameToStore = $filename.'_'.time().'.'.$extension;
+        //     $path = $request->file('photo')->storeAs('public/photos', $filenameToStore);
+        // }else{
+        //     $filenameToStore = 'noimage.jpg';
+        // }
+        $path = null;
+        $pathTumbnail = null;
+        $pathSquare = null;
+
+        if($request -> hasFile('photo')){
             $filenameWithExt = $request->file('photo')->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+
             $extension = $request->file('photo')->getClientOriginalExtension();
-            $filenameToStore = $filename.'_'.time().'.'.$extension;
-            $path = $request->file('photo')->storeAs('public/photos', $filenameToStore);
-        }else{
-            $filenameToStore = 'noimage.jpg';
+            $filenameSimpan = $filename.'_'.time().'.'.$extension;
+
+            $path = $request->file('photo')->storeAs('photos', $filenameSimpan);
+
+            $thumbnail = Image::make($request->file('photo')->getRealPath())->resize(150, 150);
+            $thumbnailSimpan = time() . '_thumbnail_' . $request->file('photo')->getClientOriginalName(); // penamaan
+            $thumbnail->save(public_path() . '/storage/photos/' . $thumbnailSimpan);
+
+            $square = Image::make($request->file('photo')->getRealPath())->resize(200, 200);
+            $squareSimpan = time() . '_square_' . $request->file('photo')->getClientOriginalName(); // penamaan
+            $square->save(public_path() . '/storage/photos/' . $squareSimpan);
+
+            $pathTumbnail = 'photos/' . $thumbnailSimpan;
+            $pathSquare = 'photos/' . $squareSimpan;
+        } else {
         }
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'photo' => $path
+            'photo' => $path,
+            'thumbnail' => $pathTumbnail,
+            'square' => $pathSquare
         ]);
 
-        // $content =[
-        //     'subject'  => $request->name,
-        //     'body' => $request->email
-        // ];
-        // Mail::to($request->email)->send(new SendEmail($content));
+        $content =[
+            'subject'  => $request->name,
+            'body' => $request->email
+        ];
+        Mail::to($request->email)->send(new SendEmail($content));
 
         $credentials = $request->only('email', 'password');
         Auth::attempt($credentials);
@@ -184,8 +216,7 @@ class LoginRegisterController extends Controller
     }
 
     $user->update($userData);
-
-        return redirect()->route('users')
-                ->withSuccess('Data Updated Successfully');
+    return redirect()->route('users')
+        ->withSuccess('Data Updated Successfully');
     }
 }
