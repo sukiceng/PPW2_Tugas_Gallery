@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\File; 
 
 use App\Http\Controllers\Auth\LoginRegisterController;
 use App\Http\Controllers\SendEmailController;
