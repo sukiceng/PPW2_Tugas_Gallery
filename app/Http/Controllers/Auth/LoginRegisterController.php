@@ -19,12 +19,14 @@ use App\Http\Requests\UpdateUsersRequest;
 
 class LoginRegisterController extends Controller
 {
-    public function __construct(){
+    public function __construct()
+    {
         $this->middleware('guest')->except([
             'logout', 'dashboard'
         ]);
     }
-    public function register(){
+    public function register()
+    {
         return view('auth.register');
     }
     public function store(Request $request)
@@ -36,25 +38,16 @@ class LoginRegisterController extends Controller
             'photo' => 'image|nullable|max:1999'
         ]);
 
-        // if($request->hasFile('photo')){
-        //     $filenameWithExt = $request->file('photo')->getClientOriginalName();
-        //     $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-        //     $extension = $request->file('photo')->getClientOriginalExtension();
-        //     $filenameToStore = $filename.'_'.time().'.'.$extension;
-        //     $path = $request->file('photo')->storeAs('public/photos', $filenameToStore);
-        // }else{
-        //     $filenameToStore = 'noimage.jpg';
-        // }
         $path = null;
         $pathTumbnail = null;
         $pathSquare = null;
 
-        if($request -> hasFile('photo')){
+        if ($request->hasFile('photo')) {
             $filenameWithExt = $request->file('photo')->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
 
             $extension = $request->file('photo')->getClientOriginalExtension();
-            $filenameSimpan = $filename.'_'.time().'.'.$extension;
+            $filenameSimpan = $filename . '_' . time() . '.' . $extension;
 
             $path = $request->file('photo')->storeAs('photos', $filenameSimpan);
 
@@ -80,7 +73,7 @@ class LoginRegisterController extends Controller
             'square' => $pathSquare
         ]);
 
-        $content =[
+        $content = [
             'subject'  => $request->name,
             'body' => $request->email
         ];
@@ -89,20 +82,22 @@ class LoginRegisterController extends Controller
         $credentials = $request->only('email', 'password');
         Auth::attempt($credentials);
         $request->session()->regenerate();
-        
+
         return redirect()->route('dashboard')
-        ->withSuccess('You have successfully registered & logged in!');
+            ->withSuccess('You have successfully registered & logged in!');
     }
-    public function login(){
+    public function login()
+    {
         return view('auth.login');
     }
-    public function authenticate(){
+    public function authenticate()
+    {
         $data = request()->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
         $credentials = $data->only('email', 'password');
-        if(Auth::attempt($credentials)){
+        if (Auth::attempt($credentials)) {
             $data->session()->regenerate();
             return redirect()->route('dashboard')->withSuccess('You have successfully loggedin!');
         }
@@ -147,14 +142,15 @@ class LoginRegisterController extends Controller
     // }
 
 
-    public function dashboard(){
-        if(Auth::check()){
+    public function dashboard()
+    {
+        if (Auth::check()) {
             return view('auth.dashboard');
         }
         return redirect()->route('login')
-        ->withErrors([
-            'email' => 'You must be logged in to view the dashboard.'
-        ])->onlyInput('email');
+            ->withErrors([
+                'email' => 'You must be logged in to view the dashboard.'
+            ])->onlyInput('email');
     }
     public function logout(Request $request)
     {
@@ -164,11 +160,13 @@ class LoginRegisterController extends Controller
         return redirect()->route('login')
             ->withSuccess('You have logged out successfully!');;
     }
-    public function index(){
+    public function index()
+    {
         $users = User::all();
         return view('users', ['users' => $users]);
     }
-    public function edit($id){
+    public function edit($id)
+    {
         $users = User::findOrFail($id);
         return view('edit', compact('users'));
     }
@@ -186,37 +184,37 @@ class LoginRegisterController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $id,
             'image' => 'image|mimes:jpeg,jpg,png|max:2048',
-    ]);
+        ]);
 
-    $userData = [
-        'name' => $request->name,
-        'email' => $request->email,
-    ];
+        $userData = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
 
-    if ($request->hasFile('photo')) {
-        File::delete(public_path() . 'photos/' . $user->photos);
+        if ($request->hasFile('photo')) {
+            File::delete(public_path() . 'photos/' . $user->photos);
 
-        $filenameWithExt = $request->file('photo')->getClientOriginalName();
-        $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-        $extension = $request->file('photo')->getClientOriginalExtension();
-        $filenameSimpan = $filename.'_'.time().'.'.$extension;
-        $path = $request->file('photo')->storeAs('photos', $filenameSimpan);
+            $filenameWithExt = $request->file('photo')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('photo')->getClientOriginalExtension();
+            $filenameSimpan = $filename . '_' . time() . '.' . $extension;
+            $path = $request->file('photo')->storeAs('photos', $filenameSimpan);
 
-        $thumbnail = Image::make($request->file('photo')->getRealPath())->resize(150, 150);
-        $thumbnailSimpan = time() . '_thumbnail_' . $request->file('photo')->getClientOriginalName();
-        $thumbnail->save(public_path() . '/storage/photos/' . $thumbnailSimpan);
+            $thumbnail = Image::make($request->file('photo')->getRealPath())->resize(150, 150);
+            $thumbnailSimpan = time() . '_thumbnail_' . $request->file('photo')->getClientOriginalName();
+            $thumbnail->save(public_path() . '/storage/photos/' . $thumbnailSimpan);
 
-        $square = Image::make($request->file('photo')->getRealPath())->resize(200, 200);
-        $squareSimpan = time() . '_square_' . $request->file('photo')->getClientOriginalName();
-        $square->save(public_path() . '/storage/photos/' . $squareSimpan);
+            $square = Image::make($request->file('photo')->getRealPath())->resize(200, 200);
+            $squareSimpan = time() . '_square_' . $request->file('photo')->getClientOriginalName();
+            $square->save(public_path() . '/storage/photos/' . $squareSimpan);
 
-        $userData['photo'] = $path;
-        $userData['thumbnail'] = 'photos/' . $thumbnailSimpan;
-        $userData['square'] = 'photos/' . $squareSimpan;
-    }
+            $userData['photo'] = $path;
+            $userData['thumbnail'] = 'photos/' . $thumbnailSimpan;
+            $userData['square'] = 'photos/' . $squareSimpan;
+        }
 
-    $user->update($userData);
-    return redirect()->route('users')
-        ->withSuccess('Data Updated Successfully');
+        $user->update($userData);
+        return redirect()->route('users')
+            ->withSuccess('Data Updated Successfully');
     }
 }
